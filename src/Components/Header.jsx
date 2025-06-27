@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "../assets/logo.2.PNG";
+import logo from "../assets/logo.2.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
