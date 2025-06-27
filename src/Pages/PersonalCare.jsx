@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 import facial from "../assets/personalCare/facial.svg";
-import hairCut from "../assets/personalCare/hairCut.svg";
+import hairCut from "../assets/personalCare/haircut.svg";
 import makeup from "../assets/personalCare/makeup.svg";
 import manipedi from "../assets/personalCare/manipedi.svg";
 import hairtreatment from "../assets/personalCare/hairtreatment.svg";
