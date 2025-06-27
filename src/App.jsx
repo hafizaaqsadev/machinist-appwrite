@@ -4,7 +4,7 @@ import Footer from "./Components/Footer.jsx";
 import Copyright from "./Components/Copyright.jsx";
 import Home from "./Pages/Home.jsx";
 import Services from "./Pages/Service.jsx";
-import Cleaning from "./pages/Cleaning.jsx";
+import Cleaning from "./Pages/Cleaning.jsx";
 import PersonalCare from "./Pages/PersonalCare.jsx";
 import Info from "./Pages/Info.jsx";
 import Areas from "./Pages/Areas.jsx";
