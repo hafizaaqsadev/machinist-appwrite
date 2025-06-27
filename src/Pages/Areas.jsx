@@ -32,7 +32,7 @@ export default function Area() {
           <a
             key={index}
             href="#"
-            className="block w-16 h-16 rounded-lg border border-gray-300 flex items-center justify-center text-gray-800 hover:text-blue-600 text-sm shadow-sm"
+            className="block w-16 h-16 rounded-lg border border-gray-300 items-center justify-center text-gray-800 hover:text-blue-600 text-sm shadow-sm"
           >
             {area}
           </a>

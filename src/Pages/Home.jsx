@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import bannerImage from "../assets/BannerImg.svg";
+import bannerImage from "../assets/logo/BannerImg.svg";
 
 export default function Home() {
   return (
     <div className="bg-white text-gray-800">
       {/* Hero Section */}
       <section className="bg-hero-gradient text-white py-20 md:py-28 px-4 sm:px-6 lg:px-20">
-        <div className="flex justify-between items-center px-4 sm:px-6 lg:px-2 flex-col-reverse md:flex-row items-center gap-10">
+        <div className="flex justify-between items-center px-4 sm:px-6 lg:px-2 flex-col-reverse md:flex-row gap-10">
           {/* Left text content */}
           <div className="w-full md:w-1/2 text-center md:text-left">
             <motion.h1

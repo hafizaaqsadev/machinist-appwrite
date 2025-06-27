@@ -24,7 +24,7 @@ export default function App() {
         <Route path="/personal-care" element={<PersonalCare />} />
         <Route path="/info" element={<Info />} />
         <Route path="/areas" element={<Areas />} />
-         <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Routes>
       <Footer />
