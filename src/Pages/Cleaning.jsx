@@ -1,4 +1,6 @@
+// src/Pages/Cleaning.jsx
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 import carWash from "../assets/cleaning/carWash.svg";
 import curtain from "../assets/cleaning/curtain.svg";
@@ -14,19 +16,41 @@ import chair from "../assets/cleaning/chair.svg";
 import deepClean from "../assets/cleaning/deepClean.svg";
 
 const services = [
-  { name: "Car Wash Services", icon: carWash },
-  { name: "Curtain Cleaning Services", icon: curtain },
-  { name: "Sofa Cleaning Services", icon: sofa },
-  { name: "Mattress Cleaning Services", icon: mattress },
-  { name: "Carpet Cleaning Services", icon: carpet },
-    { name: "Commercial Deep Cleaning", icon: commercialDeep },
-  { name: "Car Detailing Services", icon: carDetailing },
-  { name: "Solar Panel Cleaning Services", icon: solarPanel },
-  { name: "Cement Water Tank Cleaning", icon: cementTank },
-  { name: "Plastic Water Tank Cleaning", icon: plasticTank },
-    { name: "Chair Cleaning Services", icon: chair },
-  { name: "Deep Cleaning Services", icon: deepClean },
+  { id: "car-wash", name: "Car Wash Services", image: carWash },
+  { id: "curtain", name: "Curtain Cleaning Services", image: curtain },
+  { id: "sofa", name: "Sofa Cleaning Services", image: sofa },
+  { id: "mattress", name: "Mattress Cleaning Services", image: mattress },
+  { id: "carpet", name: "Carpet Cleaning Services", image: carpet },
+  { id: "commercial-deep", name: "Commercial Deep Cleaning", image: commercialDeep },
+  { id: "car-detailing", name: "Car Detailing Services", image: carDetailing },
+  { id: "solar-panel", name: "Solar Panel Cleaning Services", image: solarPanel },
+  { id: "cement-tank", name: "Cement Water Tank Cleaning", image: cementTank },
+  { id: "plastic-tank", name: "Plastic Water Tank Cleaning", image: plasticTank },
+  { id: "chair", name: "Chair Cleaning Services", image: chair },
+  { id: "deep-clean", name: "Deep Cleaning Services", image: deepClean },
 ];
+
+// Single Service Card
+const ServiceCard = ({ service }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/service-detail", { state: { service } }); // ✅ pass service info
+  };
+
+  return (
+    <motion.div
+      className="p-4 rounded-xl hover:shadow-xl transition-shadow bg-white w-full max-w-[180px] cursor-pointer"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4 }}
+      onClick={handleClick}
+    >
+      <img src={service.image} alt={service.name} className="h-20 mx-auto mb-3" />
+      <p className="text-center font-medium text-gray-700">{service.name}</p>
+    </motion.div>
+  );
+};
 
 export default function Cleaning() {
   return (
@@ -42,20 +66,7 @@ export default function Cleaning() {
 
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
         {services.map((service, idx) => (
-          <motion.div
-            key={idx}
-            className="p-4 rounded-xl hover:shadow-xl transition-shadow bg-white w-full max-w-[180px]"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, delay: idx * 0.08 }}
-          >
-            <img
-              src={service.icon}
-              alt={service.name}
-              className="h-20 mx-auto mb-3"
-            />
-            <p className="text-center font-medium text-gray-700">{service.name}</p>
-          </motion.div>
+          <ServiceCard key={idx} service={service} />
         ))}
       </div>
     </section>

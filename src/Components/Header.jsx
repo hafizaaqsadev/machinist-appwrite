@@ -1,10 +1,31 @@
-import { useState } from "react";
+// src/Components/Header.jsx
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo/logo2.png";
+import { useAuth } from "../context/AuthContext";
+import { account } from "../appwrite";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, setUser } = useAuth();
+  const navigate = useNavigate();
+
+  // Logout function
+  const handleLogout = async () => {
+    setUser(null); // ✅ immediately update header
+    try {
+      await account.deleteSession("current"); // Appwrite session delete
+      navigate("/");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+
+  // Close mobile menu if user logs out
+  useEffect(() => {
+    if (!user && isOpen) setIsOpen(false);
+  }, [user]);
 
   return (
     <header className="w-full bg-white shadow-md px-4 sm:px-6 py-3">
@@ -20,57 +41,36 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-4 lg:gap-6">
-          <Link
-            to="/"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Home
-          </Link>
-          <Link
-            to="/services"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Services
-          </Link>
-          <Link
-            to="/cleaning"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Cleaning
-          </Link>
-          <Link
-            to="/personal-care"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Personal Care
-          </Link>
-          <Link
-            to="/info"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Info
-          </Link>
-          <Link
-            to="/areas"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Areas
-          </Link>
+          <Link to="/" className="text-gray-700 font-semibold hover:text-blue-800">Home</Link>
+          <Link to="/services" className="text-gray-700 font-semibold hover:text-blue-800">Services</Link>
+          <Link to="/cleaning" className="text-gray-700 font-semibold hover:text-blue-800">Cleaning</Link>
+          <Link to="/personal-care" className="text-gray-700 font-semibold hover:text-blue-800">Personal Care</Link>
+          <Link to="/info" className="text-gray-700 font-semibold hover:text-blue-800">Info</Link>
+          <Link to="/areas" className="text-gray-700 font-semibold hover:text-blue-800">Areas</Link>
 
-          {/* Login / Signup */}
-
-          <Link
-            to="/login"
-            className="ml-3 px-4 py-1.5 bg-blue-800 text-white text-sm rounded-full hover:bg-blue-700 transition"
-          >
-            Login
-          </Link>
-          <Link
-            to="/signup"
-            className="px-4 py-1.5 bg-blue-800 text-white text-sm rounded-full hover:bg-blue-700 transition"
-          >
-            Signup
-          </Link>
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="ml-3 px-4 py-1.5 bg-blue-800 text-white text-sm rounded-full hover:bg-blue-700 transition"
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="ml-3 px-4 py-1.5 bg-blue-800 text-white text-sm rounded-full hover:bg-blue-700 transition"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="px-4 py-1.5 bg-blue-800 text-white text-sm rounded-full hover:bg-blue-700 transition"
+              >
+                Signup
+              </Link>
+            </>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -82,58 +82,39 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile Dropdown Nav */}
+      {/* Mobile Dropdown */}
       {isOpen && (
         <div className="md:hidden mt-3 flex flex-col gap-3 px-4 pb-4">
-          <Link
-            to="/"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Home
-          </Link>
-          <Link
-            to="/services"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Services
-          </Link>
-          <Link
-            to="/cleaning"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Cleaning
-          </Link>
-          <Link
-            to="/personal-care"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Personal Care
-          </Link>
-          <Link
-            to="/info"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Info
-          </Link>
-          <Link
-            to="/areas"
-            className="text-gray-700 font-semibold hover:text-blue-800"
-          >
-            Areas
-          </Link>
+          <Link to="/" className="text-gray-700 font-semibold hover:text-blue-800">Home</Link>
+          <Link to="/services" className="text-gray-700 font-semibold hover:text-blue-800">Services</Link>
+          <Link to="/cleaning" className="text-gray-700 font-semibold hover:text-blue-800">Cleaning</Link>
+          <Link to="/personal-care" className="text-gray-700 font-semibold hover:text-blue-800">Personal Care</Link>
+          <Link to="/info" className="text-gray-700 font-semibold hover:text-blue-800">Info</Link>
+          <Link to="/areas" className="text-gray-700 font-semibold hover:text-blue-800">Areas</Link>
 
-          <Link
-            to="/login"
-            className="mt-2 text-center px-4 py-2 bg-blue-800 text-white rounded-full hover:bg-blue-700 transition"
-          >
-            Login
-          </Link>
-          <Link
-            to="/signup"
-            className="mt-2 text-center px-4 py-2 bg-blue-800 text-white rounded-full hover:bg-blue-700 transition"
-          >
-            Signup
-          </Link>
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="mt-2 text-center px-4 py-2 bg-blue-800 text-white rounded-full hover:bg-blue-700 transition"
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="mt-2 text-center px-4 py-2 bg-blue-800 text-white rounded-full hover:bg-blue-700 transition"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="mt-2 text-center px-4 py-2 bg-blue-800 text-white rounded-full hover:bg-blue-700 transition"
+              >
+                Signup
+              </Link>
+            </>
+          )}
         </div>
       )}
     </header>
