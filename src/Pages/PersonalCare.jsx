@@ -15,7 +15,7 @@ import monthlybeauty from "../assets/personalCare/monthlybeauty.svg";
 
 const services = [
   { id: "facial", name: "Facial", image: facial },
-  { id: "haircut", name: "HairCut", image: hairCut },
+  { id: "hairCut", name: "HairCut", image: hairCut },
   { id: "makeup", name: "Makeup", image: makeup },
   { id: "manipedi", name: "Manipedi", image: manipedi },
   { id: "hairtreatment", name: "Hairtreatment", image: hairtreatment },
