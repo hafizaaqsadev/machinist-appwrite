@@ -15,7 +15,7 @@ export default function ServiceDetail() {
 
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
-  const [booking, setBooking] = useState(null); // ✅ store booking for notifications
+  const [booking, setBooking] = useState(null); 
 
   if (!service) return <p className="text-center mt-20">No service selected!</p>;
 
@@ -33,7 +33,7 @@ export default function ServiceDetail() {
     setLoading(true);
 
     try {
-      // 1️⃣ Save booking in Appwrite database
+    
       const bookingData = {
         serviceName: service.name,
         userId: user.$id,
