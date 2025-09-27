@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import ReviewSection from "../Components/ReviewSection"; 
 import bannerImage from "../assets/logo/BannerImg.svg";
 
 export default function Home() {
@@ -77,6 +78,8 @@ export default function Home() {
           </motion.div>
         ))}
       </section>
+       {/* ✅ Review Section */}
+      <ReviewSection user={{ name: "Hafiza" }} /> 
 
       {/* Call to Action */}
       <motion.section

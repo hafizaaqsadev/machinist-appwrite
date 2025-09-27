@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import twilio from "twilio";
 import nodemailer from "nodemailer";
+import Stripe from "stripe";
 
 dotenv.config();
 
@@ -11,15 +12,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ Twilio client
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
+// ✅ Stripe client
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// ------------------- Notifications -------------------
 app.post("/send-notification", async (req, res) => {
   const { serviceName, userEmail, bookingDate } = req.body;
 
   try {
     const message = `New Booking:\nService: ${serviceName}\nDate: ${bookingDate}\nUser: ${userEmail}`;
 
-    // ✅ Send WhatsApp
+    // --- WhatsApp ---
     let whatsappSid = null;
     try {
       const whatsappResponse = await twilioClient.messages.create({
@@ -32,7 +38,7 @@ app.post("/send-notification", async (req, res) => {
       console.error("❌ WhatsApp error:", err);
     }
 
-    // ✅ Send Email
+    // --- Email ---
     try {
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -63,6 +69,29 @@ app.post("/send-notification", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`🚀 Notification server running at http://localhost:${process.env.PORT || 5000}`);
+// ------------------- Stripe Payment -------------------
+app.post("/create-payment-intent", async (req, res) => {
+  const { amount } = req.body;
+
+  if (!amount || amount <= 0) {
+    return res.status(400).json({ error: "Invalid amount" });
+  }
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // USD to cents
+      currency: "usd",
+    });
+
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (err) {
+    console.error("❌ Stripe error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ------------------- Start Server -------------------
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

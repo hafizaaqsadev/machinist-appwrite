@@ -1,38 +1,44 @@
 // src/components/BookingNotifications.jsx
-import React, { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 
 const BookingNotifications = ({ booking }) => {
+  const { user } = useAuth(); // get logged-in user
+  const notifiedRef = useRef(false); // prevent multiple notifications
+
   useEffect(() => {
-    if (!booking?.serviceName) return;
+    // Only proceed if booking exists and notification hasn't been sent
+    if (!booking?.serviceName || notifiedRef.current) return;
 
-    // ✅ Frontend notification
-    toast.info(
-      `📢 Booking Done!\nService: ${booking.serviceName}\nUser: ${booking.userEmail}\nDate: ${booking.bookingDate}`,
-      { position: "top-right", autoClose: 5000 }
-    );
+    // ✅ Only show frontend notification to the booking owner
+    if (user && booking.userId === user.$id) {
+      toast.info(
+        `📢 Booking Done!\nService: ${booking.serviceName}\nDate: ${booking.bookingDate}`,
+        { position: "top-right", autoClose: 5000 }
+      );
+    }
 
-    // ✅ Backend notification request (WhatsApp + Email)
+    notifiedRef.current = true;
+
+    // ✅ Backend notification request (admin notification)
     const sendNotification = async () => {
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/send-notification`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              serviceName: booking.serviceName,
-              userEmail: booking.userEmail,
-              bookingDate: booking.bookingDate,
-            }),
-          }
-        );
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/send-notification`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            serviceName: booking.serviceName,
+            userEmail: booking.userEmail,
+            bookingDate: booking.bookingDate,
+          }),
+        });
 
+        const contentType = res.headers.get("content-type");
         let data = {};
-        try {
+
+        if (contentType && contentType.includes("application/json")) {
           data = await res.json();
-        } catch (err) {
-          console.warn("Response is not JSON:", err);
         }
 
         if (res.ok && data.success) {
@@ -56,7 +62,7 @@ const BookingNotifications = ({ booking }) => {
     };
 
     sendNotification();
-  }, [booking]);
+  }, [booking, user]);
 
   return null;
 };

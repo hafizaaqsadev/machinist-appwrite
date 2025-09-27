@@ -13,16 +13,15 @@ export default function Header() {
 
   // Logout function
   const handleLogout = async () => {
-    setUser(null); // ✅ immediately update header
+    setUser(null);
     try {
-      await account.deleteSession("current"); // Appwrite session delete
+      await account.deleteSession("current");
       navigate("/");
     } catch (err) {
       console.error("Logout failed:", err);
     }
   };
 
-  // Close mobile menu if user logs out
   useEffect(() => {
     if (!user && isOpen) setIsOpen(false);
   }, [user]);
@@ -47,6 +46,13 @@ export default function Header() {
           <Link to="/personal-care" className="text-gray-700 font-semibold hover:text-blue-800">Personal Care</Link>
           <Link to="/info" className="text-gray-700 font-semibold hover:text-blue-800">Info</Link>
           <Link to="/areas" className="text-gray-700 font-semibold hover:text-blue-800">Areas</Link>
+
+          {/* ✅ Show only when user logged in */}
+          {user && (
+            <Link to="/profile" className="text-gray-700 font-semibold hover:text-blue-800">
+              My profile
+            </Link>
+          )}
 
           {user ? (
             <button
@@ -91,6 +97,13 @@ export default function Header() {
           <Link to="/personal-care" className="text-gray-700 font-semibold hover:text-blue-800">Personal Care</Link>
           <Link to="/info" className="text-gray-700 font-semibold hover:text-blue-800">Info</Link>
           <Link to="/areas" className="text-gray-700 font-semibold hover:text-blue-800">Areas</Link>
+
+          {/* ✅ Mobile: show only when logged in */}
+          {user && (
+            <Link to="/profile" className="text-gray-700 font-semibold hover:text-blue-800">
+              My profile
+            </Link>
+          )}
 
           {user ? (
             <button

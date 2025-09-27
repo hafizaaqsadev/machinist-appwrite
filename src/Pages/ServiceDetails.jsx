@@ -1,120 +1,143 @@
-// src/Pages/ServiceDetail.jsx
+// src/Pages/ServiceDetails.jsx
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { databases, ID } from "../appwrite";
+import { Permission, Role } from "appwrite";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import BookingNotifications from "../Components/BookingNotifications";
 
-export default function ServiceDetail() {
+export default function ServiceDetails() {
   const { state } = useLocation();
   const service = state?.service;
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const [date, setDate] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [booking, setBooking] = useState(null);
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [nearestPlace, setNearestPlace] = useState("");
 
-  // Redirect if no service selected
-  useEffect(() => {
-    if (!service) {
-      toast.error("❌ No service selected!", { autoClose: 3000 });
-      navigate("/services");
-    }
-  }, [service, navigate]);
+  if (!service)
+    return <p className="text-center mt-20">No service selected!</p>;
 
-  const handleBooking = async () => {
+  const handleBookNow = async () => {
     if (!user) {
-      toast.warning("⚠️ Please login first!", { position: "top-right", autoClose: 3000 });
+      toast.warning("⚠️ Please login first!");
       navigate("/login");
       return;
     }
-
-    if (!date) {
-      toast.warning("⚠️ Please select a date", { position: "top-right", autoClose: 3000 });
+    if (!date || !phone || !address || !city) {
+      toast.warning("⚠️ Please fill all required fields!");
       return;
     }
 
-    setLoading(true);
-
     try {
-      const bookingData = {
-        serviceName: service.name,
-        userId: user.$id,
-        userEmail: user.email,
-        bookingDate: date,
-        status: "pending",
-      };
-
-      const result = await databases.createDocument(
+      // ✅ Booking create with extra fields
+      const booking = await databases.createDocument(
         import.meta.env.VITE_APPWRITE_BOOKING_DATABASE_ID,
         import.meta.env.VITE_APPWRITE_BOOKING_COLLECTION_ID,
         ID.unique(),
-        bookingData
+        {
+          serviceName: service.name,
+          userId: user.$id,
+          userEmail: user.email,
+          bookingDate: date,
+          phone,
+          address,
+          city,
+          nearestPlace,
+          status: "pending",
+          serviceId: service.id || null,
+        },
+        [
+          Permission.read(Role.user(user.$id)),
+          Permission.update(Role.user(user.$id)),
+          Permission.delete(Role.user(user.$id)),
+        ]
       );
 
-      console.log("✅ Booking saved:", result);
-      setBooking(bookingData);
-
-      toast.success("✅ Booking successful! Admin will be notified.", {
-        position: "top-right",
-        autoClose: 5000,
+      toast.success("Booking created! Proceed to payment.");
+      navigate("/checkout", {
+        state: {
+          service,
+          date,
+          user,
+          bookingId: booking.$id,
+          amount: service.price || 0,
+        },
       });
-
-      setDate(""); // Reset date
     } catch (err) {
-      console.error("❌ Booking error:", err);
-      toast.error("❌ Booking failed. Try again later.", {
-        position: "top-right",
-        autoClose: 5000,
-      });
-    } finally {
-      setLoading(false);
+      console.error("Booking error:", err);
+      toast.error("Booking failed. Try again.");
     }
   };
 
-  if (!service) {
-    return <p className="text-center mt-20 text-gray-600">Redirecting...</p>;
-  }
-
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-start py-12 px-4 sm:px-6 md:px-12 lg:px-20 bg-gray-50">
+    <div className="min-h-[80vh] flex flex-col items-center justify-start px-4 sm:px-6 md:px-12 lg:px-20 pb-20 pt-16">
       <ToastContainer />
-
-      <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">{service.name}</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center">{service.name}</h2>
 
       {/* Service Image */}
-      <div className="w-full max-w-md">
-        <img
-          src={service.image || service.icon}
-          alt={service.name}
-          className="w-full h-48 md:h-56 lg:h-60 object-contain rounded-lg shadow-md mb-6"
-        />
-      </div>
+      <img
+        src={service.image || service.icon}
+        alt={service.name}
+        className="h-32 w-auto mb-6 object-contain sm:h-40 md:h-48"
+      />
 
       {/* Booking Form */}
-      <div className="flex flex-col items-center w-full max-w-sm">
-        <label className="mb-2 font-medium w-full text-left">Select Booking Date:</label>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="border p-2 rounded mb-4 w-full text-center focus:outline-none focus:ring-2 focus:ring-black"
-        />
+      <label className="mb-2 font-medium">Select Booking Date:</label>
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        className="border p-2 rounded mb-4 text-center w-full max-w-sm"
+        min={new Date().toISOString().split("T")[0]} // ✅ Disable past dates
+      />
 
-        <button
-          onClick={handleBooking}
-          disabled={loading}
-          className="bg-black text-white px-6 py-2 rounded hover:bg-gray-900 transition disabled:opacity-50 w-full"
-        >
-          {loading ? "Booking..." : "Book Now"}
-        </button>
-      </div>
+      <label className="mb-2 font-medium">Phone Number:</label>
+      <input
+        type="tel"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        className="border p-2 rounded mb-4 w-full max-w-sm"
+        placeholder="Enter phone number"
+      />
 
-      {/* Booking Notification */}
-      {booking && <BookingNotifications booking={booking} />}
+      <label className="mb-2 font-medium">Address:</label>
+      <input
+        type="text"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        className="border p-2 rounded mb-4 w-full max-w-sm"
+        placeholder="Enter your address"
+      />
+
+      <label className="mb-2 font-medium">City:</label>
+      <input
+        type="text"
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        className="border p-2 rounded mb-4 w-full max-w-sm"
+        placeholder="Enter your city"
+      />
+
+      <label className="mb-2 font-medium">Nearest Place (Optional):</label>
+      <input
+        type="text"
+        value={nearestPlace}
+        onChange={(e) => setNearestPlace(e.target.value)}
+        className="border p-2 rounded mb-6 w-full max-w-sm"
+        placeholder="e.g. Near Mall Road"
+      />
+
+      <button
+        onClick={handleBookNow}
+        className="bg-black text-white px-6 py-2 rounded hover:bg-gray-900 transition"
+      >
+        Book Now
+      </button>
     </div>
   );
 }
